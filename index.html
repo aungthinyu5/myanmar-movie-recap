@@ -312,15 +312,36 @@
         statusBox.textContent = 'ဗီဒီယိုဖိုင်ကို ဖွင့်နေပါတယ်…';
       });
 
-      processBtn.addEventListener('click', () => {
-        if (!fileInput.files || !fileInput.files[0]) {
-          statusBox.textContent = 'အရင်ဆုံး “Video ရွေးရန်” ကိုနှိပ်ပြီး ဗီဒီယိုဖိုင် ရွေးပါ။';
-          fileInput.focus();
-          return;
+      processBtn.addEventListener('click', async () => {
+    if (!fileInput.files || !fileInput.files[0]) {
+        statusBox.textContent = 'အရင်ဆုံး "Video ရွေးရန်" ကိုနှိပ်ပြီး ဗီဒီယိုရွေးပါ';
+        fileInput.focus();
+        return;
+    }
+    
+    statusBox.textContent = 'AI ဖြင့် စာသားများ ထုတ်ယူနေပါပြီ... ကျေးဇူးပြု၍ စောင့်ဆိုင်းပေးပါ';
+    
+    try {
+        const response = await fetch("https://myanmarmovierecapapi.winkowin357.workers.dev", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                text: "Video file name: " + fileInput.files[0].name, 
+                task: "recap" 
+            })
+        });
+        
+        const data = await response.json();
+        if (data.result) {
+            statusBox.textContent = '✨ AI Recap ရလဒ်: ' + data.result;
+        } else {
+            statusBox.textContent = 'Error: ' + (data.error || 'Unknown error');
         }
-        statusBox.textContent =
-          'ဗီဒီယိုရွေးချယ်မှု အောင်မြင်ပါတယ်။ AI ဘာသာပြန်၊ အသံထုတ်ခြင်းနဲ့ Video Export အတွက် Backend/API ကို ထပ်ချိတ်ဆက်ရပါမယ်။';
-      });
+    } catch (err) {
+        statusBox.textContent = 'Network Error: ' + err.message;
+    }
+});
+
     })();
   </script>
 </body>
