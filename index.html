@@ -1,348 +1,102 @@
 <!DOCTYPE html>
 <html lang="my">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Myanmar AI Movie Recap</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; font-family: Arial, sans-serif;
-      background: #f4f5fa; color: #202033;
-    }
-    header {
-      background: #fff; padding: 16px;
-      display: flex; justify-content: space-between; align-items: center;
-      box-shadow: 0 2px 8px #ddd;
-    }
-    header h1 { margin: 0; color: #5145e5; font-size: 20px; }
-    main { max-width: 720px; margin: auto; padding: 16px; }
-    .card {
-      background: #fff; border-radius: 18px; padding: 18px;
-      margin-bottom: 16px; box-shadow: 0 2px 10px #00000008;
-    }
-    .upload {
-      border: 2px dashed #aaa5f5; border-radius: 14px;
-      padding: 20px 12px; text-align: center; background: #f9f8ff;
-    }
-    button, select, input { font-size: 16px; }
-    button {
-      border: 0; border-radius: 12px; padding: 13px 18px;
-      background: #5145e5; color: white; font-weight: bold;
-      cursor: pointer;
-    }
-    button:disabled { opacity: .6; cursor: not-allowed; }
-    .pick-button { width: 100%; margin: 10px 0; }
-    .file-input { display: block; width: 100%; margin: 14px 0; }
-    label { display: block; font-weight: bold; margin-top: 12px; }
-    select {
-      padding: 12px; border: 1px solid #ddd; border-radius: 10px;
-      background: white; width: 100%; margin: 8px 0 15px;
-    }
-    #preview {
-      width: 100%; max-height: 60vh; margin-top: 14px;
-      border-radius: 12px; display: none; background: #000;
-    }
-    #fileInfo, #status { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.6; }
-    #status { margin-top: 12px; }
-    .note { color: #666; font-size: 14px; }
-    footer { text-align: center; color: #777; padding: 18px; font-size: 13px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Myanmar AI Movie Recap</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: Arial, sans-serif; background: #f4f5fa; color: #202033; }
+        header { background: white; padding: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px #ddd; }
+        header h2 { margin: 0; color: #5145e5; font-size: 20px; }
+        main { max-width: 700px; margin: auto; padding: 16px; }
+        .card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 10px #00000008; }
+        .upload { border: 2px dashed #aaa5f5; border-radius: 16px; padding: 30px 12px; text-align: center; background: #f9f8ff; }
+        button, select, input, textarea { font-size: 16px; }
+        button { background: #5145e5; color: white; border: none; border-radius: 12px; padding: 12px 20px; cursor: pointer; }
+        #preview { width: 100%; max-height: 300px; display: none; margin-top: 10px; border-radius: 10px; }
+        #status { margin-top: 10px; font-weight: bold; word-break: break-all; }
+    </style>
 </head>
 <body>
-  <header>
-    <h1>🎬 Myanmar AI Recap</h1>
-    <span>🇲🇲</span>
-  </header>
+    <header>
+        <h2>🎬 Myanmar AI Recap</h2>
+    </header>
+    <main>
+        <section class="card">
+            <h3>🎥 Movie Recap Studio</h3>
+            <div class="upload">
+                <button id="chooseBtn" type="button">📁 Video ရွေးရန်</button>
+                <input type="file" id="videoFile" accept="video/*" style="display:none;">
+                <p id="fileInfo">ဖိုင်မရွေးချယ်ရသေးပါ</p>
+                <video id="preview" controls></video>
+            </div>
+        </section>
 
-  <main>
-    <section class="card">
-      <div class="upload">
-        <h2>🎥 Movie Recap Studio</h2>
-        <p>ဗီဒီယိုဖိုင်ကို ရွေးပြီး Preview ကြည့်ပါ</p>
+        <section class="card">
+            <h3>🤖 AI Processing</h3>
+            <button id="processBtn" type="button" style="width:100%">🚀 AI Recap စတင်ရန်</button>
+            <div id="status" role="status" aria-live="polite"></div>
+        </section>
+    </main>
 
-        <button type="button" id="chooseBtn" class="pick-button">📁 Video ရွေးရန်</button>
-        <input class="file-input" type="file" id="videoFile"
-          accept="video/*,.mp4,.mov,.m4v,.webm,.mkv">
-        <video id="preview" controls playsinline preload="metadata"></video>
-        <p id="fileInfo">ဗီဒီယိုဖိုင် မရွေးရသေးပါ</p>
-        <p class="note">ဖိုင်ကို ရွေးပြီးရင် ဒီ Browser ထဲမှာပဲ Preview ပြပါမယ်။ Upload server မလိုပါ။</p>
-      </div>
-    </section>
+    <script>
+        (() => {
+            const fileInput = document.getElementById('videoFile');
+            const chooseBtn = document.getElementById('chooseBtn');
+            const preview = document.getElementById('preview');
+            const fileInfo = document.getElementById('fileInfo');
+            const statusBox = document.getElementById('status');
+            const processBtn = document.getElementById('processBtn');
+            let currentUrl = null;
 
-    <section class="card">
-      <h3>⚙️ Video Settings</h3>
-      <label for="language">Output Language</label>
-      <select id="language">
-        <option value="my">မြန်မာ</option>
-        <option value="en">English</option>
-        <option value="th">ไทย</option>
-      </select>
+            chooseBtn.addEventListener('click', () => fileInput.click());
 
-      <label for="ratio">Aspect Ratio</label>
-      <select id="ratio">
-        <option value="9:16">9:16 — TikTok / Reels</option>
-        <option value="16:9">16:9 — YouTube</option>
-        <option value="1:1">1:1 — Square</option>
-        <option value="3:4">3:4 — Portrait</option>
-      </select>
+            fileInput.addEventListener('change', () => {
+                const file = fileInput.files && fileInput.files[0];
+                if (!file) {
+                    fileInfo.textContent = 'ဖိုင်မရွေးချယ်ရသေးပါ';
+                    return;
+                }
+                if (currentUrl) URL.revokeObjectURL(currentUrl);
+                currentUrl = URL.createObjectURL(file);
+                fileInfo.textContent = 'ဖိုင်အမည်: ' + file.name + ' | အရွယ်အစား: ' + (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+                preview.style.display = 'block';
+                preview.src = currentUrl;
+                preview.load();
+                statusBox.textContent = 'ဗီဒီယိုကို အောင်မြင်စွာ ရွေးပြီးပါပြီ။';
+            });
 
-      <label for="mode">Recap Mode</label>
-      <select id="mode">
-        <option value="recap">AI Movie Recap</option>
-        <option value="subtitle">Subtitle Mode</option>
-        <option value="translate">Translation Mode</option>
-      </select>
-
-      <label for="style">Recap Style</label>
-      <select id="style">
-        <option value="natural">သဘာဝကျသော မြန်မာစကားပြောပုံ</option>
-        <option value="dramatic">ရင်ခုန်စိတ်လှုပ်ရှားဖွယ်</option>
-        <option value="short">တိုတိုနဲ့ ထိရောက်သောပုံစံ</option>
-      </select>
-    </section>
-
-    <section class="card">
-      <h3>🤖 AI Processing</h3>
-      <p>လက်ရှိဗားရှင်းမှာ Video ရွေးချယ်ခြင်းနဲ့ Preview ကြည့်ခြင်းကို စမ်းသပ်နိုင်ပါတယ်။ AI ဘာသာပြန်၊ မြန်မာအသံထုတ်ခြင်းနဲ့ Export အတွက် Backend/API ချိတ်ဆက်ဖို့ လိုအပ်ပါတယ်။</p>
-      <button id="processBtn" type="button" style="width:100%">🚀 AI Recap စတင်ရန်</button>
-      <div id="status" role="status" aria-live="polite"></div>
-    </section>
-  </main>
-  <footer>Myanmar AI Movie Recap Studio</footer>
-
-  <script>
-    (() => {
-      const fileInput = document.getElementById('videoFile');
-      const chooseBtn = document.getElementById('chooseBtn');
-      const preview = document.getElementById('preview');
-      const fileInfo = document.getElementById('fileInfo');
-      const statusBox = document.getElementById('status');
-      const processBtn = document.getElementById('processBtn');
-      let currentUrl = null;
-
-      // Keep the native file input visible: it is more reliable on mobile browsers.
-      chooseBtn.addEventListener('click', () => fileInput.click());
-
-      fileInput.addEventListener('change', () => {
-        const file = fileInput.files && fileInput.files[0];
-        if (!file) {
-          fileInfo.textContent = 'ဖိုင်မရွေးချယ်ရသေးပါ။';
-          return;
-        }
-
-        if (currentUrl) URL.revokeObjectURL(currentUrl);
-        currentUrl = URL.createObjectURL(file);
-
-        fileInfo.textContent =
-          'ဖိုင်အမည်: ' + file.name +
-          '\nအရွယ်အစား: ' + (file.size / (1024 * 1024)).toFixed(2) + ' MB' +
-          '\nအမျိုးအစား: ' + (file.type || 'မသိရှိပါ');
-
-        preview.style.display = 'block';
-        preview.src = currentUrl;
-        preview.load();
-
-        preview.onloadedmetadata = () => {
-          statusBox.textContent =
-            'ဗီဒီယိုကို အောင်မြင်စွာ ရွေးပြီးပါပြီ။ Duration: ' +
-            Math.round(preview.duration) + ' စက္ကန့်။';
-        };
-        preview.onerror = () => {
-          statusBox.textContent =
-            'ဖိုင်ကို ရွေးပြီးပါပြီ၊ ဒါပေမဲ့ ဒီ Browser က ဗီဒီယို format ကို မဖွင့်နိုင်ပါ။ MP4 (H.264) ဖိုင်နဲ့ စမ်းကြည့်ပါ။';
-        };
-        statusBox.textContent = 'ဗီဒီယိုဖိုင်ကို ဖွင့်နေပါတယ်…';
-      });
-
-      <!DOCTYPE html>
-<html lang="my">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Myanmar AI Movie Recap</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; font-family: Arial, sans-serif;
-      background: #f4f5fa; color: #202033;
-    }
-    header {
-      background: #fff; padding: 16px;
-      display: flex; justify-content: space-between; align-items: center;
-      box-shadow: 0 2px 8px #ddd;
-    }
-    header h1 { margin: 0; color: #5145e5; font-size: 20px; }
-    main { max-width: 720px; margin: auto; padding: 16px; }
-    .card {
-      background: #fff; border-radius: 18px; padding: 18px;
-      margin-bottom: 16px; box-shadow: 0 2px 10px #00000008;
-    }
-    .upload {
-      border: 2px dashed #aaa5f5; border-radius: 14px;
-      padding: 20px 12px; text-align: center; background: #f9f8ff;
-    }
-    button, select, input { font-size: 16px; }
-    button {
-      border: 0; border-radius: 12px; padding: 13px 18px;
-      background: #5145e5; color: white; font-weight: bold;
-      cursor: pointer;
-    }
-    button:disabled { opacity: .6; cursor: not-allowed; }
-    .pick-button { width: 100%; margin: 10px 0; }
-    .file-input { display: block; width: 100%; margin: 14px 0; }
-    label { display: block; font-weight: bold; margin-top: 12px; }
-    select {
-      padding: 12px; border: 1px solid #ddd; border-radius: 10px;
-      background: white; width: 100%; margin: 8px 0 15px;
-    }
-    #preview {
-      width: 100%; max-height: 60vh; margin-top: 14px;
-      border-radius: 12px; display: none; background: #000;
-    }
-    #fileInfo, #status { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.6; }
-    #status { margin-top: 12px; }
-    .note { color: #666; font-size: 14px; }
-    footer { text-align: center; color: #777; padding: 18px; font-size: 13px; }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>🎬 Myanmar AI Recap</h1>
-    <span>🇲🇲</span>
-  </header>
-
-  <main>
-    <section class="card">
-      <div class="upload">
-        <h2>🎥 Movie Recap Studio</h2>
-        <p>ဗီဒီယိုဖိုင်ကို ရွေးပြီး Preview ကြည့်ပါ</p>
-
-        <button type="button" id="chooseBtn" class="pick-button">📁 Video ရွေးရန်</button>
-        <input class="file-input" type="file" id="videoFile"
-          accept="video/*,.mp4,.mov,.m4v,.webm,.mkv">
-        <video id="preview" controls playsinline preload="metadata"></video>
-        <p id="fileInfo">ဗီဒီယိုဖိုင် မရွေးရသေးပါ</p>
-        <p class="note">ဖိုင်ကို ရွေးပြီးရင် ဒီ Browser ထဲမှာပဲ Preview ပြပါမယ်။ Upload server မလိုပါ။</p>
-      </div>
-    </section>
-
-    <section class="card">
-      <h3>⚙️ Video Settings</h3>
-      <label for="language">Output Language</label>
-      <select id="language">
-        <option value="my">မြန်မာ</option>
-        <option value="en">English</option>
-        <option value="th">ไทย</option>
-      </select>
-
-      <label for="ratio">Aspect Ratio</label>
-      <select id="ratio">
-        <option value="9:16">9:16 — TikTok / Reels</option>
-        <option value="16:9">16:9 — YouTube</option>
-        <option value="1:1">1:1 — Square</option>
-        <option value="3:4">3:4 — Portrait</option>
-      </select>
-
-      <label for="mode">Recap Mode</label>
-      <select id="mode">
-        <option value="recap">AI Movie Recap</option>
-        <option value="subtitle">Subtitle Mode</option>
-        <option value="translate">Translation Mode</option>
-      </select>
-
-      <label for="style">Recap Style</label>
-      <select id="style">
-        <option value="natural">သဘာဝကျသော မြန်မာစကားပြောပုံ</option>
-        <option value="dramatic">ရင်ခုန်စိတ်လှုပ်ရှားဖွယ်</option>
-        <option value="short">တိုတိုနဲ့ ထိရောက်သောပုံစံ</option>
-      </select>
-    </section>
-
-    <section class="card">
-      <h3>🤖 AI Processing</h3>
-      <p>လက်ရှိဗားရှင်းမှာ Video ရွေးချယ်ခြင်းနဲ့ Preview ကြည့်ခြင်းကို စမ်းသပ်နိုင်ပါတယ်။ AI ဘာသာပြန်၊ မြန်မာအသံထုတ်ခြင်းနဲ့ Export အတွက် Backend/API ချိတ်ဆက်ဖို့ လိုအပ်ပါတယ်။</p>
-      <button id="processBtn" type="button" style="width:100%">🚀 AI Recap စတင်ရန်</button>
-      <div id="status" role="status" aria-live="polite"></div>
-    </section>
-  </main>
-  <footer>Myanmar AI Movie Recap Studio</footer>
-
-  <script>
-    (() => {
-      const fileInput = document.getElementById('videoFile');
-      const chooseBtn = document.getElementById('chooseBtn');
-      const preview = document.getElementById('preview');
-      const fileInfo = document.getElementById('fileInfo');
-      const statusBox = document.getElementById('status');
-      const processBtn = document.getElementById('processBtn');
-      let currentUrl = null;
-
-      // Keep the native file input visible: it is more reliable on mobile browsers.
-      chooseBtn.addEventListener('click', () => fileInput.click());
-
-      fileInput.addEventListener('change', () => {
-        const file = fileInput.files && fileInput.files[0];
-        if (!file) {
-          fileInfo.textContent = 'ဖိုင်မရွေးချယ်ရသေးပါ။';
-          return;
-        }
-
-        if (currentUrl) URL.revokeObjectURL(currentUrl);
-        currentUrl = URL.createObjectURL(file);
-
-        fileInfo.textContent =
-          'ဖိုင်အမည်: ' + file.name +
-          '\nအရွယ်အစား: ' + (file.size / (1024 * 1024)).toFixed(2) + ' MB' +
-          '\nအမျိုးအစား: ' + (file.type || 'မသိရှိပါ');
-
-        preview.style.display = 'block';
-        preview.src = currentUrl;
-        preview.load();
-
-        preview.onloadedmetadata = () => {
-          statusBox.textContent =
-            'ဗီဒီယိုကို အောင်မြင်စွာ ရွေးပြီးပါပြီ။ Duration: ' +
-            Math.round(preview.duration) + ' စက္ကန့်။';
-        };
-        preview.onerror = () => {
-          statusBox.textContent =
-            'ဖိုင်ကို ရွေးပြီးပါပြီ၊ ဒါပေမဲ့ ဒီ Browser က ဗီဒီယို format ကို မဖွင့်နိုင်ပါ။ MP4 (H.264) ဖိုင်နဲ့ စမ်းကြည့်ပါ။';
-        };
-        statusBox.textContent = 'ဗီဒီယိုဖိုင်ကို ဖွင့်နေပါတယ်…';
-      });
-
-      processBtn.addEventListener('click', async () => {
-    if (!fileInput.files || !fileInput.files[0]) {
-        statusBox.textContent = 'အရင်ဆုံး "Video ရွေးရန်" ကိုနှိပ်ပြီး ဗီဒီယိုရွေးပါ';
-        fileInput.focus();
-        return;
-    }
-    
-    statusBox.textContent = 'AI ဖြင့် စာသားများ ထုတ်ယူနေပါပြီ... ကျေးဇူးပြု၍ စောင့်ဆိုင်းပေးပါ';
-    
-    try {
-        const response = await fetch("https://myanmarmovierecapapi.winkowin357.workers.dev", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-                text: "Video file name: " + fileInput.files[0].name, 
-                task: "recap" 
-            })
-        });
-        
-        const data = await response.json();
-        if (data.result) {
-            statusBox.textContent = '✨ AI Recap ရလဒ်: ' + data.result;
-        } else {
-            statusBox.textContent = 'Error: ' + (data.error || 'Unknown error');
-        }
-    } catch (err) {
-        statusBox.textContent = 'Network Error: ' + err.message;
-    }
-});
-
-    })();
-  </script>
+            processBtn.addEventListener('click', async () => {
+                if (!fileInput.files || !fileInput.files[0]) {
+                    statusBox.textContent = 'အရင်ဆုံး "Video ရွေးရန်" ကိုနှိပ်ပြီး ဗီဒီယိုရွေးပါ။';
+                    fileInput.focus();
+                    return;
+                }
+                
+                statusBox.textContent = 'AI ဖြင့် စာသားများ ထုတ်ယူနေပါပြီ... ခဏစောင့်ပေးပါ။';
+                
+                try {
+                    const response = await fetch("https://myanmarmovierecapapi.winkowin357.workers.dev", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ 
+                            text: "Video file name: " + fileInput.files[0].name, 
+                            task: "recap" 
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    if (data.result) {
+                        statusBox.textContent = '✨ AI Recap ရလဒ်: ' + data.result;
+                    } else {
+                        statusBox.textContent = 'Error: ' + (data.error || 'Unknown error');
+                    }
+                } catch (err) {
+                    statusBox.textContent = 'Network Error: ' + err.message;
+                }
+            });
+        })();
+    </script>
 </body>
 </html>
