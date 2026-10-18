@@ -49,6 +49,8 @@
   const processBtn = document.getElementById("processBtn");
   const statusBox = document.getElementById("status");
   const resultBox = document.getElementById("result");
+  const transcribeBtn = document.getElementById("transcribeBtn");
+const transcribeStatus = document.getElementById("transcribeStatus");
   let currentUrl = null;
 
   chooseBtn.addEventListener("click", () => fileInput.click());
@@ -63,7 +65,54 @@
     fileInfo.textContent = "ဖိုင်အမည်: " + file.name + " | အရွယ်အစား: " + (file.size / (1024 * 1024)).toFixed(2) + " MB";
     statusBox.textContent = "ဗီဒီယိုကို ရွေးပြီးပါပြီ။ AI Recap အတွက် မူရင်း Transcript ကိုလည်း အောက်မှာ ထည့်ပေးပါ။";
   });
+transcribeBtn.addEventListener("click", async () => {
+  const file = fileInput.files && fileInput.files[0];
 
+  if (!file) {
+    transcribeStatus.textContent = "အရင် Video ဖိုင်ရွေးပါ။";
+    return;
+  }
+
+  if (file.size > 25 * 1024 * 1024) {
+    transcribeStatus.textContent =
+      "ဖိုင်က 25 MB ထက်ကြီးနေပါတယ်။ ဖိုင်သေးသေးနဲ့ စမ်းပါ။";
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", file, file.name);
+
+  transcribeBtn.disabled = true;
+  transcribeStatus.textContent =
+    "⏳ Video ထဲက အသံကို စာသားပြောင်းနေပါတယ်...";
+
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.ok) {
+      throw new Error(
+        data.details || data.error || "Transcript ထုတ်မရပါ။"
+      );
+    }
+
+    sourceText.value = data.result || "";
+
+    transcribeStatus.textContent =
+      "✅ Transcript ထုတ်ပြီးပါပြီ။ အောက်ကစာသားကို စစ်ကြည့်ပါ။";
+
+  } catch (error) {
+    transcribeStatus.textContent =
+      "❌ အမှား: " + error.message;
+
+  } finally {
+    transcribeBtn.disabled = false;
+  }
+});
   processBtn.addEventListener("click", async () => {
     const text = sourceText.value.trim();
     if (!text) {
