@@ -79,11 +79,16 @@
     resultBox.value = "";
     statusBox.textContent = "AI ဆီ စာသားပို့နေပါတယ်... ခဏစောင့်ပါ။";
     try {
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({text: text, task: taskSelect.value})
-      });
+      const response = await fetch("https://myanmarmovierecapapi.winkowin357.workers.dev/", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    text: text,
+    task: taskSelect.value
+  })
+});
       let data;
       try { data = await response.json(); }
       catch { throw new Error("API က JSON ရလဒ် မပေးပါ။ Cloudflare Worker ကို စစ်ပါ။"); }
