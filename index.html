@@ -51,9 +51,10 @@
   const resultBox = document.getElementById("result");
   let currentUrl = null;
 
-  chooseBtn.addEventListener("click", () => {
-  statusBox.textContent = "ဗီဒီယိုဖိုင် ရွေးချယ်ရန် ကြိုးစားနေသည်...";
+  chooseBtn.addEventListener("click", function () {
+  alert("Video ခလုတ် အလုပ်လုပ်နေပါတယ်!");
   fileInput.click();
+});
 });
   fileInput.addEventListener("change", () => {
     const file = fileInput.files && fileInput.files[0];
