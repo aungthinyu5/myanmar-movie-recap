@@ -1,102 +1,131 @@
 <!DOCTYPE html>
 <html lang="my">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Myanmar AI Movie Recap</title>
-    <style>
-        * { box-sizing: border-box; }
-        body { margin: 0; font-family: Arial, sans-serif; background: #f4f5fa; color: #202033; }
-        header { background: white; padding: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px #ddd; }
-        header h2 { margin: 0; color: #5145e5; font-size: 20px; }
-        main { max-width: 700px; margin: auto; padding: 16px; }
-        .card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 10px #00000008; }
-        .upload { border: 2px dashed #aaa5f5; border-radius: 16px; padding: 30px 12px; text-align: center; background: #f9f8ff; }
-        button, select, input, textarea { font-size: 16px; }
-        button { background: #5145e5; color: white; border: none; border-radius: 12px; padding: 12px 20px; cursor: pointer; }
-        #preview { width: 100%; max-height: 300px; display: none; margin-top: 10px; border-radius: 10px; }
-        #status { margin-top: 10px; font-weight: bold; word-break: break-all; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#5145e5">
+<title>Myanmar AI Movie Recap</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f5fa;color:#202033}header{background:#fff;padding:16px;box-shadow:0 2px 8px #ddd}header h2{margin:0;color:#5145e5;font-size:20px}main{max-width:760px;margin:auto;padding:16px}.card{background:#fff;border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:0 2px 10px #00000008}h3{margin-top:0}.upload{border:2px dashed #aaa5f5;border-radius:16px;padding:22px 12px;text-align:center;background:#f9f8ff}button,select,textarea,input{font:inherit}button{background:#5145e5;color:#fff;border:0;border-radius:12px;padding:12px 16px;cursor:pointer}button:disabled{opacity:.6;cursor:wait}.secondary{background:#e9e8ff;color:#3027a5}textarea{width:100%;min-height:170px;padding:12px;border:1px solid #d5d5e4;border-radius:12px;resize:vertical;line-height:1.6}select{width:100%;padding:12px;border:1px solid #d5d5e4;border-radius:10px;background:#fff;margin:8px 0 14px}label{display:block;font-weight:bold;margin:10px 0 6px}#preview{width:100%;max-height:320px;display:none;margin-top:12px;border-radius:10px;background:#000}#status{margin-top:12px;padding:10px;border-radius:10px;background:#f6f5ff;white-space:pre-wrap;overflow-wrap:anywhere}.hint{color:#626276;font-size:14px;line-height:1.6}.row{display:flex;gap:8px;flex-wrap:wrap}.row button{flex:1;min-width:130px}#result{min-height:180px}
+</style>
 </head>
 <body>
-    <header>
-        <h2>🎬 Myanmar AI Recap</h2>
-    </header>
-    <main>
-        <section class="card">
-            <h3>🎥 Movie Recap Studio</h3>
-            <div class="upload">
-                <button id="chooseBtn" type="button">📁 Video ရွေးရန်</button>
-                <input type="file" id="videoFile" accept="video/*" style="display:none;">
-                <p id="fileInfo">ဖိုင်မရွေးချယ်ရသေးပါ</p>
-                <video id="preview" controls></video>
-            </div>
-        </section>
+<header><h2>🎬 Myanmar AI Recap</h2></header>
+<main>
+<section class="card">
+<h3>🎥 Movie Recap Studio</h3>
+<div class="upload">
+<button id="chooseBtn" type="button">📁 Video ရွေးရန်</button>
+<input type="file" id="videoFile" accept="video/*" hidden>
+<p id="fileInfo">ဖိုင်မရွေးချယ်ရသေးပါ</p>
+<video id="preview" controls playsinline></video>
+</div>
+<p class="hint">ဒီဗားရှင်းမှာ ဗီဒီယိုကို ရွေးပြီးကြည့်နိုင်ပါတယ်။ ဗီဒီယိုထဲက အသံ/စာသားကို အလိုအလျောက်ထုတ်ယူခြင်း၊ မြန်မာ AI အသံထည့်ခြင်းနဲ့ ဗီဒီယို Export လုပ်ခြင်းကို နောက်ထပ် API ဝန်ဆောင်မှုများ ချိတ်ဆက်ရပါမယ်။</p>
+</section>
+<section class="card">
+<h3>📝 ရုပ်ရှင်စာသား ထည့်ရန်</h3>
+<label for="sourceText">မူရင်းစာသား / Transcript</label>
+<textarea id="sourceText" placeholder="ရုပ်ရှင်ထဲက စကားပြောစာသားကို ဒီမှာ ကူးထည့်ပါ..."></textarea>
+<label for="task">လုပ်ဆောင်ချက်</label>
+<select id="task"><option value="recap">မြန်မာ Movie Recap ရေးရန်</option><option value="translate">မြန်မာလို ဘာသာပြန်ရန်</option></select>
+<button id="processBtn" type="button" style="width:100%">🚀 AI စတင်ရန်</button>
+<div id="status" role="status" aria-live="polite">စာသားထည့်ပြီး AI စတင်ရန်ကို နှိပ်ပါ။</div>
+</section>
+<section class="card">
+<h3>✨ AI ရလဒ်</h3>
+<textarea id="result" readonly placeholder="AI ရဲ့ ရလဒ် ဒီနေရာမှာ ပေါ်လာပါမယ်။"></textarea>
+<div class="row" style="margin-top:10px"><button id="copyBtn" type="button" class="secondary">📋 ရလဒ်ကူးရန်</button><button id="downloadBtn" type="button" class="secondary">⬇️ TXT သိမ်းရန်</button></div>
+</section>
+</main>
+<script>
+(() => {
+  const API_URL = "https://myanmarmovierecapapi.winkowin357.workers.dev/";
+  const fileInput = document.getElementById("videoFile");
+  const chooseBtn = document.getElementById("chooseBtn");
+  const preview = document.getElementById("preview");
+  const fileInfo = document.getElementById("fileInfo");
+  const sourceText = document.getElementById("sourceText");
+  const taskSelect = document.getElementById("task");
+  const processBtn = document.getElementById("processBtn");
+  const statusBox = document.getElementById("status");
+  const resultBox = document.getElementById("result");
+  let currentUrl = null;
 
-        <section class="card">
-            <h3>🤖 AI Processing</h3>
-            <button id="processBtn" type="button" style="width:100%">🚀 AI Recap စတင်ရန်</button>
-            <div id="status" role="status" aria-live="polite"></div>
-        </section>
-    </main>
+  chooseBtn.addEventListener("click", () => fileInput.click());
+  fileInput.addEventListener("change", () => {
+    const file = fileInput.files && fileInput.files[0];
+    if (!file) return;
+    if (currentUrl) URL.revokeObjectURL(currentUrl);
+    currentUrl = URL.createObjectURL(file);
+    preview.src = currentUrl;
+    preview.style.display = "block";
+    preview.load();
+    fileInfo.textContent = "ဖိုင်အမည်: " + file.name + " | အရွယ်အစား: " + (file.size / (1024 * 1024)).toFixed(2) + " MB";
+    statusBox.textContent = "ဗီဒီယိုကို ရွေးပြီးပါပြီ။ AI Recap အတွက် မူရင်း Transcript ကိုလည်း အောက်မှာ ထည့်ပေးပါ။";
+  });
 
-    <script>
-        (() => {
-            const fileInput = document.getElementById('videoFile');
-            const chooseBtn = document.getElementById('chooseBtn');
-            const preview = document.getElementById('preview');
-            const fileInfo = document.getElementById('fileInfo');
-            const statusBox = document.getElementById('status');
-            const processBtn = document.getElementById('processBtn');
-            let currentUrl = null;
+  processBtn.addEventListener("click", async () => {
+    const text = sourceText.value.trim();
+    if (!text) {
+      statusBox.textContent = "အရင်ဆုံး မူရင်းရုပ်ရှင်စာသားကို ထည့်ပေးပါ။ ဗီဒီယိုဖိုင်နာမည်တစ်ခုတည်းနဲ့ Recap မရေးနိုင်ပါ။";
+      sourceText.focus();
+      return;
+    }
+    if (text.length > 30000) {
+      statusBox.textContent = "စာသားက အရမ်းရှည်နေပါတယ်။ အပိုင်းခွဲပြီး စမ်းကြည့်ပါ (အများဆုံး 30,000 characters)။";
+      return;
+    }
+    processBtn.disabled = true;
+    resultBox.value = "";
+    statusBox.textContent = "AI ဆီ စာသားပို့နေပါတယ်... ခဏစောင့်ပါ။";
+    try {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({text: text, task: taskSelect.value})
+      });
+      let data;
+      try { data = await response.json(); }
+      catch { throw new Error("API က JSON ရလဒ် မပေးပါ။ Cloudflare Worker ကို စစ်ပါ။"); }
+      if (!response.ok || !data.ok || !data.result) {
+        const detail = data.details ? " (" + data.details + ")" : "";
+        throw new Error((data.error || "AI request မအောင်မြင်ပါ။ HTTP " + response.status) + detail);
+      }
+      resultBox.value = data.result;
+      statusBox.textContent = "အောင်မြင်ပါပြီ။ AI ရလဒ်ကို အောက်မှာ ကြည့်နိုင်ပါတယ်။";
+    } catch (err) {
+      statusBox.textContent = "အမှား: " + (err && err.message ? err.message : String(err)) + "\n\nအင်တာနက်ကို စစ်ပါ။ မအောင်မြင်သေးရင် Cloudflare Worker Logs ကို စစ်ရပါမယ်။";
+    } finally {
+      processBtn.disabled = false;
+    }
+  });
 
-            chooseBtn.addEventListener('click', () => fileInput.click());
+  document.getElementById("copyBtn").addEventListener("click", async () => {
+    if (!resultBox.value.trim()) { statusBox.textContent = "ကူးယူဖို့ AI ရလဒ် မရှိသေးပါ။"; return; }
+    try {
+      await navigator.clipboard.writeText(resultBox.value);
+      statusBox.textContent = "AI ရလဒ်ကို ကူးယူပြီးပါပြီ။";
+    } catch {
+      resultBox.focus(); resultBox.select();
+      statusBox.textContent = "စာသားကို ရွေးထားပါတယ်။ Copy ကို နှိပ်ပါ။";
+    }
+  });
 
-            fileInput.addEventListener('change', () => {
-                const file = fileInput.files && fileInput.files[0];
-                if (!file) {
-                    fileInfo.textContent = 'ဖိုင်မရွေးချယ်ရသေးပါ';
-                    return;
-                }
-                if (currentUrl) URL.revokeObjectURL(currentUrl);
-                currentUrl = URL.createObjectURL(file);
-                fileInfo.textContent = 'ဖိုင်အမည်: ' + file.name + ' | အရွယ်အစား: ' + (file.size / (1024 * 1024)).toFixed(2) + ' MB';
-                preview.style.display = 'block';
-                preview.src = currentUrl;
-                preview.load();
-                statusBox.textContent = 'ဗီဒီယိုကို အောင်မြင်စွာ ရွေးပြီးပါပြီ။';
-            });
+  document.getElementById("downloadBtn").addEventListener("click", () => {
+    if (!resultBox.value.trim()) { statusBox.textContent = "သိမ်းဖို့ AI ရလဒ် မရှိသေးပါ။"; return; }
+    const blob = new Blob([resultBox.value], {type:"text/plain;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "myanmar-movie-recap.txt";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    statusBox.textContent = "TXT ဖိုင် သိမ်းရန် စတင်ပါပြီ။";
+  });
 
-            processBtn.addEventListener('click', async () => {
-                if (!fileInput.files || !fileInput.files[0]) {
-                    statusBox.textContent = 'အရင်ဆုံး "Video ရွေးရန်" ကိုနှိပ်ပြီး ဗီဒီယိုရွေးပါ။';
-                    fileInput.focus();
-                    return;
-                }
-                
-                statusBox.textContent = 'AI ဖြင့် စာသားများ ထုတ်ယူနေပါပြီ... ခဏစောင့်ပေးပါ။';
-                
-                try {
-                    const response = await fetch("https://myanmarmovierecapapi.winkowin357.workers.dev", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ 
-                            text: "Video file name: " + fileInput.files[0].name, 
-                            task: "recap" 
-                        })
-                    });
-                    
-                    const data = await response.json();
-                    if (data.result) {
-                        statusBox.textContent = '✨ AI Recap ရလဒ်: ' + data.result;
-                    } else {
-                        statusBox.textContent = 'Error: ' + (data.error || 'Unknown error');
-                    }
-                } catch (err) {
-                    statusBox.textContent = 'Network Error: ' + err.message;
-                }
-            });
-        })();
-    </script>
+  window.addEventListener("beforeunload", () => {
+    if (currentUrl) URL.revokeObjectURL(currentUrl);
+  });
+})();
+</script>
 </body>
 </html>
