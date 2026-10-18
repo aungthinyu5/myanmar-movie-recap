@@ -10,7 +10,7 @@
 </style>
 </head>
 <body>
-<header><h2>🎬 Myanmar AI Recap</h2></header>
+<header><h2>🎬 Myanmar AI Recap TEST123</h2></header>
 <main>
 <section class="card">
 <h3>🎥 Movie Recap Studio</h3>
@@ -51,11 +51,7 @@
   const resultBox = document.getElementById("result");
   let currentUrl = null;
 
-  chooseBtn.addEventListener("click", function () {
-  alert("TEST123");
-  fileInput.click();
-});
-});
+  chooseBtn.addEventListener("click", () => fileInput.click());
   fileInput.addEventListener("change", () => {
     const file = fileInput.files && fileInput.files[0];
     if (!file) return;
@@ -83,16 +79,11 @@
     resultBox.value = "";
     statusBox.textContent = "AI ဆီ စာသားပို့နေပါတယ်... ခဏစောင့်ပါ။";
     try {
-      const response = await fetch("https://myanmarmovierecapapi.winkowin357.workers.dev/", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    text: text,
-    task: taskSelect.value
-  })
-});
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({text: text, task: taskSelect.value})
+      });
       let data;
       try { data = await response.json(); }
       catch { throw new Error("API က JSON ရလဒ် မပေးပါ။ Cloudflare Worker ကို စစ်ပါ။"); }
